@@ -4,6 +4,9 @@ es necesario instalar express
 sudo npm install -g express  
 o
 npm install express
+e instalar las dependecias
+cd node-arduino
+npm install -d
 
 Al skecth es necesario configurarle la IP
 
