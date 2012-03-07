@@ -1,0 +1,112 @@
+<!DOCTYPE html> 
+<html> 
+	<head> 
+	<title>My Page</title> 
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	<link rel="stylesheet" href="../javascripts/jquery.mobile-1.0.1/jquery.mobile-1.0.1.min.css" />
+	<script src="../javascripts/jquery-1.6.4.min.js"></script>
+
+  <script>
+  $(document).bind("mobileinit", function(){
+    $.mobile.ajaxEnabled = false;
+  });
+
+  </script>
+	<script src="../javascripts/jquery.mobile-1.0.1/jquery.mobile-1.0.1.min.js"></script>
+  <script src="../javascripts/faye-browser.js"></script>
+  <script src="../javascripts/jquery.form.js"></script>
+
+  <script>
+
+	//var client = new Faye.Client('http://192.168.1.102:8080/faye');
+  var client = new Faye.Client('http://	192.168.199.100:8080/faye');
+	  client.subscribe('/data', function(message) {
+    console.log(message.query);
+		$('#data').html(message.query);
+	  });
+
+  $(document).ready(function(){
+	  $('#publish').click(function(){
+	  	if($('#text').val()){
+			client.publish('/messages', {
+			  text: $('#text').val()
+			});
+			$('#text').val('')
+		}
+	});
+  
+  var options = { 
+        success:       showResponse  // post-submit callback   
+    }; 
+    
+  
+      // bind to the form's submit event 
+    $('#postData').submit(function() { 
+        
+        $(this).ajaxSubmit(options); 
+        return false; 
+    });
+
+    function showResponse(responseText, statusText, xhr, $form)  { 
+   
+      console.log('status: ' + statusText + '\n\nresponseText: \n' + responseText + 
+        '\n\nThe output div should have already been updated with the responseText.'); 
+    } 
+    
+    $("#pin9").change(function(){
+      console.log("----->" + $("#pin9").val());
+      
+      var data = "dw9=lo"
+        if($("#pin9").val()=="yes"){
+          data = "dw9=hi"
+        }
+      
+        $.ajax({
+          type: "POST",
+          url: "../postData",
+          data: "cmd=" + data
+        }).done(function( msg ) {
+            console.log("received " +msg)
+          });
+      });
+
+  
+});
+</script>
+</head> 
+<body> 
+
+<div data-role="page">
+
+	<div data-role="header">
+		<h1>My Title</h1>
+	</div><!-- /header -->
+
+	<div data-role="content">	
+    <div id="data"">
+      &nbsp
+    </div>
+		
+    <form action="../postData" method="post" id="postData">
+      
+      <div data-role="pin9" style="width: 200px"> 
+        <label for="flip-b">Pin 9</label>
+	        <select name="slider" id="pin9" data-role="slider">
+		        <option value="no">No</option>
+		        <option value="yes">Yes</option>
+	        </select> 
+        </div>
+      
+    
+       <div data-role="fieldcontain" class="ui-hide-label">
+	        <label for="cmd">Comando:</label>
+	        <input type="text" name="cmd" id="cmd" value="" placeholder="comando"/>
+        </div>	
+      <button type="submit" data-theme="b" name="submit" value="submit-value" class="ui-btn-hidden" aria-disabled="false">Submit</button>
+    </form>	
+	</div><!-- /content -->
+
+</div><!-- /page -->
+
+</body>
+</html>
