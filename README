@@ -1,0 +1,10 @@
+Para correr el servidor node
+node app.js
+es necesario instalar express 
+sudo npm install -g express  
+o
+npm install express
+
+Al skecth es necesario configurarle la IP
+
+
