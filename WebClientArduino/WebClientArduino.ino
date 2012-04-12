@@ -32,6 +32,7 @@ int charsReceived = 0;
 boolean digitalValues[10];
 int analogValues[6];
 
+
 //status
 
 long lastConnectionTime = 0;        // last time you connected to the server, in milliseconds
@@ -40,29 +41,58 @@ boolean startData = false;
 
 String queryString;
 
+
+#include <EasyTransfer.h>
+
+//create object
+EasyTransfer ET; 
+
+struct SEND_DATA_STRUCTURE{
+  //put your variable definitions here for the data you want to send
+  //THIS MUST BE EXACTLY THE SAME ON THE OTHER ARDUINO
+  int pixel;
+  int red;
+  int green;
+  int blue;
+};
+
+//give a name to the group of data
+SEND_DATA_STRUCTURE mydata;
+
+
+
 void setup() {
+
+  Serial.begin(9600);
+  //start the library, pass in the data details and the name of the serial port. Can be Serial, Serial1, Serial2, etc.
+  ET.begin(details(mydata), &Serial);
+  
+  pinMode(13, OUTPUT);
+  
+  randomSeed(analogRead(0));
+
+
   // setting pins 0 to 9 as outputs
   // pins 10-13 are used by the Ethernet Shield
-  for(int  i= 0; i < 10; i++)  pinMode(i, OUTPUT);
+  //for(int  i= 0; i < 10; i++)  pinMode(i, OUTPUT);
 
-  // start the serial library:
-  Serial.begin(9600);
   // start the Ethernet connection:
   if (Ethernet.begin(mac) == 0) {
-    Serial.println("Failed to configure Ethernet using DHCP");
+   
     // no point in carrying on, so do nothing forevermore:
     for(;;)
       ;
   }
   // give the Ethernet shield a second to initialize:
-  delay(1000);
-  Serial.println("connecting...");
+  delay(200);
+ 
 
   // if you get a connection, report back via serial:
 
 }
 void loop()
 {
+
   if (client.available()) {
     char c = client.read();
 
@@ -82,18 +112,14 @@ void loop()
   // if there's no net connection, but there was one last time
   // through the loop, then stop the client:
   if (!client.connected() && lastConnected) {
-    Serial.println();
-    Serial.println("disconnecting.");
+
+
     client.stop();
-    Serial.print("===");    
-  for (int j= 0; j < textBuffSize; j =j + 1) {
-    
-    Serial.print(textBuff[j]);
-    Serial.print("_");
+  
+  for (int j= 0; j < textBuffSize; j =j + 1) {   
     int c = textBuff[j];    
-    Serial.print(c);  
   }
-  Serial.print("===");
+
 
   parseReceivedText();
      
@@ -102,8 +128,9 @@ void loop()
   // if you're not connected, and ten seconds have passed since
   // your last connection, then connect again and send data:
   if(!client.connected()) {
+  
     if (client.connect(server, 8080)) {
-      Serial.println("connected");
+
       startData=false;
       charsReceived=0;
 
@@ -114,10 +141,9 @@ void loop()
     
       readDigitalPins();
 
-      queryString = queryString + "&d0=" + digitalValues[0] + "&d1=" + digitalValues[1] + "&d2=" + digitalValues[2] 
-            + "&d3=" +  digitalValues[3] + "&d=4" +  digitalValues[4] + "&d5=" +  digitalValues[5] 
-            + "&d6=" +  digitalValues[6] + "&d=7" +  digitalValues[7] + "&d8=" + digitalValues[8]
-            + "&d9=" + digitalValues[9] ;
+      queryString = queryString + "&d2=" + digitalValues[0] + "&d3=" + digitalValues[1] + "&d4=" + digitalValues[2] 
+            + "&d5=" +  digitalValues[3] + "&d=6" +  digitalValues[4] + "&d7=" +  digitalValues[5] 
+            + "&d8=" +  digitalValues[6] + "&d=9" +  digitalValues[7] + ;
   
       readAnalogPins();
 
@@ -138,7 +164,7 @@ void loop()
 void readDigitalPins()
 {
   // output the valueof each digital pin
-  for (int i = 0; i < 10; i++) outputPinState(i);
+  for (int i = 2; i < 10; i++) outputPinState(i);
 }
 void outputPinState(int pin)
 {
@@ -160,122 +186,17 @@ void readAnalogPins()
 
 void parseReceivedText()
 {
-  switch (textBuff[1]) {
-    case 'a' : writeAnalogPin();	  break;
-    case 'd' : writeDigitalPin();	 break;
-    case 'p' : setPinMode();		 break;
-  }
-}
-void writeDigitalPin()
-  // if we got here, textBuff[0] = 'd' and textBuff[1] = 'w'
-{
-  int pin = -1;
-  int pinSetting = -1;
-  if (textBuff[4] == '=' && textBuff[7] == '}') {
-    Serial.println("->dw"); 
-	  //if yes, get the pin number, setting, and set the pin
-	  pin = parseDigit(textBuff[3]);
-	  pinSetting = parsePinSetting();
-	  if(pin > -1 && pinSetting == 0) {
-	    digitalWrite(pin, LOW);
-	    client.println("OK");
-	  }
-	  if(pin > -1 && pinSetting == 1) {
-	    digitalWrite(pin, HIGH);
-	    client.println("OK");
-	  }
-	 // if(pin < 0 || pinSetting < 0) printErrorMessage();
-	}
-  // else printErrorMessage();
-}
-int parseDigit(char c)
-{
-  int digit = -1;
-  digit = (int) c - 0x30; // subtracting 0x30 from ASCII code gives value
-  if(digit < 0 || digit > 9) digit = -1;
-  return digit;
-}
-int parsePinSetting()
-//look in the text buffer to find the pin setting
-//return -1 if not valid
-{
-  int pinSetting = -1;
-  if(textBuff[5] == 'l' && textBuff[6] == 'o') pinSetting = 0;
-  if(textBuff[5] == 'h' && textBuff[6] == 'i') pinSetting = 1;
-  return pinSetting;
-}
-void writeAnalogPin()
-  // if we got here, textBuff[1] = 'a' and textBuff[2] = 'w'
-{
-  int pin = -1;
-  int pwmSetting = -1;
-   if (textBuff[4] == '=') {
-    Serial.println("------>aw___"); 
-	//if yes, get the pin number, setting, and set the pin
-	pin = parseDigit(textBuff[3]);
-	 Serial.println(pin); 
-	if(pin == 3 || pin == 5 || pin == 6 || pin == 9) {
-	  pwmSetting = parsepwmSetting();
-	   Serial.println("::");
-	   Serial.println(pwmSetting); 
-	  if(pwmSetting >= 0 && pwmSetting <= 255) {
-	    analogWrite(pin,pwmSetting);
-	    client.println("OK");
-	  }
-	 // else printErrorMessage();
-	}
-//	else printErrorMessage();
-    }
-  // else printErrorMessage();
+
+  mydata.red = random(255);
+  mydata.green = random(255);
+  mydata.blue = random(255);
+  mydata.pixel = 3;
+	//send the data
+  ET.sendData();
+  
+
+  
+  delay(100);  
+
 }
 
-int parsepwmSetting()
-{
-  int pwmSetting = 0;
-  int textPosition = 5;  //start at textBuff[5]
-  int digit;
-  do {
-    digit = parseDigit(textBuff[textPosition]); //look for a digit in textBuff
-    if (digit >= 0 && digit <=9) {		  //if digit found
-	pwmSetting = pwmSetting * 10 + digit;     //shift previous result and add new digit
-    }
-    else pwmSetting = -1;
-    textPosition++;				     //go to the next position in textBuff
-  }
-  //if not at end of textBuff and not found a CR and not had an error, keep going
-  while(textPosition < 8 && textBuff[textPosition] != '}' && pwmSetting > -1);
-   //if value is not followed by a CR, return an error
-  if(textBuff[textPosition] != '}') pwmSetting = -1;
-  return pwmSetting;
-}
-
- void setPinMode()
-  // if we got here, textBuff[0] = 'p'
-{
-  int pin = -1;
-  int pinModeSetting = -1;
-  if (textBuff[2] == 'm' && textBuff[4] == '=' && textBuff[7] == '}') {
-	  //if yes, get the pin number, setting, and set the pin
-	  pin = parseDigit(textBuff[3]);
-	  pinModeSetting = parseModeSetting();
-	  if(pin > -1 && pinModeSetting == 0) {
-	    pinMode(pin, OUTPUT);
-	    client.println("OK");
-	  }
-	  if(pin > -1 && pinModeSetting == 1) {
-	    pinMode(pin, INPUT);
-	    client.println("OK");
-	  }
-	 // if(pin < 0 || pinModeSetting < 0) printErrorMessage();
-	}
-   //else printErrorMessage();
-}
-int parseModeSetting()
-//look in the text buffer to find the pin setting
-//return -1 if not valid
-{
-  int pinSetting = -1;
-  if(textBuff[5] == 'o' && textBuff[6] == 'u') pinSetting = 0;
-  if(textBuff[5] == 'i' && textBuff[6] == 'n') pinSetting = 1;
-  return pinSetting;
-}
