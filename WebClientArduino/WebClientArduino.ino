@@ -26,11 +26,12 @@ IPAddress server(10,42,43,1); // node server
 // that you want to connect to (port 80 is default for HTTP):
 EthernetClient client;
 // Other global variables
-#define textBuffSize 10 //length of longest command string plus two spaces for CR + LF
+#define textBuffSize 16  //length of longest command string plus two spaces for CR + LF
 char textBuff[textBuffSize]; //someplace to put received text
 int charsReceived = 0;
 boolean digitalValues[10];
 int analogValues[6];
+
 
 
 //status
@@ -69,7 +70,9 @@ void setup() {
   
   pinMode(13, OUTPUT);
   
-  randomSeed(analogRead(0));
+  for (int j= 0; j < textBuffSize; j =j + 1) {   
+     textBuff[j] = '0';    
+  }
 
 
   // setting pins 0 to 9 as outputs
@@ -87,7 +90,7 @@ void setup() {
   delay(200);
  
 
-  // if you get a connection, report back via serial:
+
 
 }
 void loop()
@@ -113,15 +116,8 @@ void loop()
   // through the loop, then stop the client:
   if (!client.connected() && lastConnected) {
 
-
     client.stop();
-  
-  for (int j= 0; j < textBuffSize; j =j + 1) {   
-    int c = textBuff[j];    
-  }
-
-
-  parseReceivedText();
+    parseReceivedText();
      
   }
 
@@ -143,7 +139,7 @@ void loop()
 
       queryString = queryString + "&d2=" + digitalValues[0] + "&d3=" + digitalValues[1] + "&d4=" + digitalValues[2] 
             + "&d5=" +  digitalValues[3] + "&d=6" +  digitalValues[4] + "&d7=" +  digitalValues[5] 
-            + "&d8=" +  digitalValues[6] + "&d=9" +  digitalValues[7] + ;
+            + "&d8=" +  digitalValues[6] + "&d=9" +  digitalValues[7]  ;
   
       readAnalogPins();
 
@@ -187,14 +183,31 @@ void readAnalogPins()
 void parseReceivedText()
 {
 
-  mydata.red = random(255);
-  mydata.green = random(255);
-  mydata.blue = random(255);
-  mydata.pixel = 3;
-	//send the data
-  ET.sendData();
-  
 
+ 
+
+//  Serial.println(textBuff);
+  
+    int pixel = (textBuff[1]-'0')*10 + (textBuff[2] - '0');
+    
+    int red = (textBuff[3]-'0')*100 + (textBuff[4]-'0')*10 + (textBuff[5] - '0');
+    int green = (textBuff[6]-'0')*100 + (textBuff[7]-'0')*10 + (textBuff[8] - '0');
+    int blue = (textBuff[9]-'0')*100 + (textBuff[10]-'0')*10 + (textBuff[11] - '0');
+    
+    //Serial.println(pixel);   
+    //Serial.println(red);  
+    //Serial.println(green);  
+    //Serial.println(blue);  
+    
+     mydata.red = red;
+     mydata.green = green;
+     mydata.blue = blue;
+     mydata.pixel = pixel;
+	//send the data
+     ET.sendData();
+    
+    
+    
   
   delay(100);  
 

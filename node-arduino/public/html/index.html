@@ -3,7 +3,7 @@
 	<head> 
 	<title>My Page</title> 
 	<meta name="viewport" content="width=device-width, initial-scale=1"> 
-	<link rel="stylesheet" href="../javascripts/jquery.mobile-1.0.1/jquery.mobile-1.0.1.min.css" />
+	<link rel="stylesheet" href="../javascripts/jquery.mobile-1.1.0.min.css" />
 	<script src="../javascripts/jquery-1.6.4.min.js"></script>
 
   <script>
@@ -12,16 +12,16 @@
   });
 
   </script>
-	<script src="../javascripts/jquery.mobile-1.0.1/jquery.mobile-1.0.1.min.js"></script>
+	<script src="../javascripts/jquery.mobile-1.1.0.min.js"></script>
   <script src="../javascripts/faye-browser.js"></script>
   <script src="../javascripts/jquery.form.js"></script>
 
   <script>
 
 	//var client = new Faye.Client('http://192.168.1.102:8080/faye');
-  var client = new Faye.Client('http://	192.168.199.100:8080/faye');
+  var client = new Faye.Client('http://10.42.43.1:8080/faye');
 	  client.subscribe('/data', function(message) {
-    console.log(message.query);
+   // console.log(message.query);
 		$('#data').html(message.query);
 	  });
 
@@ -36,15 +36,59 @@
 	});
   
   var options = { 
-        success:       showResponse  // post-submit callback   
+        success: showResponse  // post-submit callback   
     }; 
   
-      // bind to the form's submit event 
-    $('#postData').submit(function() { 
-        
-        $(this).ajaxSubmit(options); 
-        return false; 
+  
+    
+    $('#txt_red').change(function() {
+    
+      post();
     });
+    
+     $('#txt_green').change(function() {
+     post();
+    });
+    
+     $('#txt_blue').change(function() {
+    post();
+    });
+    
+    
+    function post(){
+    
+      var pixel = 10;
+      var red = $("#txt_red").val();
+      red = cleanValue(red);
+      var green = $("#txt_green").val();
+      green = cleanValue(green);
+      var blue = $("#txt_blue").val();
+      blue = cleanValue(blue)
+
+      var data = pixel + red + green + blue;
+      console.log(data);
+
+       $.post("../postData", { cmd: data} );
+    }
+
+    function cleanValue(data){
+      
+      switch(data.length)
+      {
+          case 1:
+            data = "00" + data
+            break;
+          case 2:
+            data = "0" + data
+            break;
+          case 3:
+            break  
+          default:
+            data = "000"
+      }
+      return data;
+    }
+    
 
     function showResponse(responseText, statusText, xhr, $form)  { 
    
@@ -68,21 +112,33 @@
     <div id="data"">
       &nbsp
     </div>
-		<p>dw0=hi   -digital write:  turn pin 0 on  valid pins are 0 to 9</br>
-	      dw0=lo   -digital write:  turn pin 0 off valid pins are 0 to 9</br></br>
-        aw3=222  -analog write:   set digital pin 3 to PWM value 222</br>
-        allowed pins are 3,5,6,9</br>
-        allowed PWM range 0 to 255</br></br>
-        pm0=in   -pin mode:	 set pin 0 to INPUT  valid pins are 0 to 9</br>
-        pm0=ou   -pin mode:	 set pin 0 to OUTPUT valid pins are 0 to 9</br>
-    </p>
-    <form action="../postData" method="post" id="postData">
-       <div data-role="fieldcontain" class="ui-hide-label">
-	        <label for="cmd">Comando:</label>
-	        <input type="text" name="cmd" id="cmd" value="" placeholder="comando"/>
-        </div>	
-      <button type="submit" data-theme="b" name="submit" value="submit-value" class="ui-btn-hidden" aria-disabled="false">Submit</button>
-    </form>	
+    
+      <div data-role="fieldcontain">
+                    <fieldset data-role="controlgroup">
+                        <label for="slider1">
+                            Red:
+                        </label>
+                        <input type="range" id="txt_red" name="red" id="slider1" value="0" min="0" max="31" data-highlight="false" />
+                    </fieldset>
+                </div>
+                <div data-role="fieldcontain">
+                    <fieldset data-role="controlgroup">
+                        <label for="slider2">
+                            Green:
+                        </label>
+                        <input type="range" id="txt_green"name="green" id="slider2" value="0" min="0" max="31" data-highlight="false" />
+                    </fieldset>
+                </div>
+                <div data-role="fieldcontain">
+                    <fieldset data-role="controlgroup">
+                        <label for="slider3">
+                            blue:
+                        </label>
+                        <input type="range" id="txt_blue"name="blue" id="slider3" value="0" min="0" max="31" data-highlight="false" />
+                    </fieldset>
+    
+	
+  
 	</div><!-- /content -->
 
 </div><!-- /page -->

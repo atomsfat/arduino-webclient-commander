@@ -64,9 +64,8 @@ void loop(){
     //since we have data, we will blink it out. 
     
       int c;
-     c = Color(mydata.red, mydata.green, mydata.blue);
+      c = Color(mydata.red, mydata.green, mydata.blue);
 
-     
     for (byte i=0; i < strip.numPixels(); i++) {
         strip.setPixelColor(i, c);   
     }
