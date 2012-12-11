@@ -8,7 +8,7 @@ var express = require('express')
 var http = require('http'),
     faye = require('faye');
 
-var app = module.exports = express.createServer();
+var app  = express();
 
 var bayeux = new faye.NodeAdapter({
   mount:    '/faye',
@@ -41,6 +41,6 @@ app.get('/arduino', routes.arduino);
 app.use(express.bodyParser());
 app.post('/postData', routes.postData);
 
-bayeux.attach(app);
-app.listen(8080);
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+http.createServer(app).listen(8181);
+//bayeux.attach(app);
+console.log("Express server listening on port %d in %s mode", app.listen(), app.settings.env);
