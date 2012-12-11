@@ -1,27 +1,23 @@
 #### Arduino webclient commander
+Obtener los submodulos
+```
+git submodule init
+```
 
+Y crear el siguiente alias en la raiz del proyecto
+```
+ln -s arduino_submodules/Arduino-EasyTransfer/EasyTransfer libraries/EasyTransfer
+```
+es necesario instalar las dependecias node _express_
+```
+npm install  
+```
 Para correr el servidor _node_
 ```
 node app.js
 ```
-es necesario instalar _express_
-```
-sudo npm install -g express  
-```
-o
-```
-npm install express
-```
-e instalar las dependecias
-```
-cd node-arduino
-npm install -d
-```
-tambien es necesario instalar faye
-```
-sudo npm install faye.
-```
 
-Al skecth de arduino es necesario configurarle la IP.
+Al skecth de arduino WebClient es necesario configurarle la IP.
+
 
 
