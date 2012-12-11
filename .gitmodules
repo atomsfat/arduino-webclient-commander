@@ -1,3 +1,6 @@
 [submodule "libraries/LPD6803RGBPixels"]
 	path = libraries/LPD6803RGBPixels
 	url = git://github.com/adafruit/LPD6803-RGB-Pixels.git
+[submodule "arduino_submodules/Arduino-EasyTransfer"]
+	path = arduino_submodules/Arduino-EasyTransfer
+	url = git://github.com/madsci1016/Arduino-EasyTransfer.git
