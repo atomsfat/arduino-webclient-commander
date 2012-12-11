@@ -8,8 +8,11 @@
 // Can be any valid output pins.
 int dataPin = 2;       // 'yellow' wire
 int clockPin = 3;      // 'green' wire
+int analogValues[6];
+
 
 LPD6803 strip = LPD6803(20, dataPin, clockPin);
+int ledLights[20];
 //create object
 EasyTransfer ET; 
 
@@ -35,12 +38,15 @@ unsigned int Color(byte r, byte g, byte b) {
 void showInitImage() {
     for (int i=0; i < strip.numPixels(); i++) {
       strip.setPixelColor(i, 0);
-    }    
+      ledLights[i]=0;
+    }   
+      
+     
 }
 
 void setup(){
 
- strip.setCPUmax(50);  // start with 50% CPU usage. up this if the strand flickers or is slow
+ strip.setCPUmax(70);  // start with 50% CPU usage. up this if the strand flickers or is slow
     // Start up the LED counter
   strip.begin();
   
@@ -65,9 +71,15 @@ void loop(){
     
       int c;
       c = Color(mydata.red, mydata.green, mydata.blue);
+      
+      
+      if(mydata.pixel < strip.numPixels()){
+        ledLights[mydata.pixel]= c;
+      }
+      
 
     for (byte i=0; i < strip.numPixels(); i++) {
-        strip.setPixelColor(i, c);   
+        strip.setPixelColor(i,ledLights[i]);   
     }
      strip.doSwapBuffersAsap(20);   
      

@@ -1,8 +1,8 @@
-<!DOCTYPE html> 
-<html> 
-	<head> 
-	<title>My Page</title> 
-	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+<!DOCTYPE html>
+<html>
+	<head>
+	<title>My Page</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../javascripts/jquery.mobile-1.1.0.min.css" />
 	<script src="../javascripts/jquery-1.6.4.min.js"></script>
 
@@ -34,30 +34,31 @@
 			$('#text').val('')
 		}
 	});
-  
-  var options = { 
-        success: showResponse  // post-submit callback   
-    }; 
-  
-  
-    
+
+  var options = {
+        success: showResponse  // post-submit callback
+    };
+
+
+
     $('#txt_red').change(function() {
-    
+
       post();
     });
-    
+
      $('#txt_green').change(function() {
      post();
     });
-    
+
      $('#txt_blue').change(function() {
     post();
     });
-    
-    
+
+
     function post(){
-    
-      var pixel = 10;
+
+
+      var pixel = $("#no_pixel").val();
       var red = $("#txt_red").val();
       red = cleanValue(red);
       var green = $("#txt_green").val();
@@ -72,7 +73,7 @@
     }
 
     function cleanValue(data){
-      
+
       switch(data.length)
       {
           case 1:
@@ -82,25 +83,55 @@
             data = "0" + data
             break;
           case 3:
-            break  
+            break
           default:
             data = "000"
       }
       return data;
     }
-    
 
-    function showResponse(responseText, statusText, xhr, $form)  { 
-   
-      console.log('status: ' + statusText + '\n\nresponseText: \n' + responseText + 
-        '\n\nThe output div should have already been updated with the responseText.'); 
-    } 
 
-  
+    function showResponse(responseText, statusText, xhr, $form)  {
+
+      console.log('status: ' + statusText + '\n\nresponseText: \n' + responseText +
+        '\n\nThe output div should have already been updated with the responseText.');
+    }
+
+    var dataSend=[];
+
+    for(var j=0;j<20;j++){
+      var red = cleanValue("27");
+      var green = cleanValue("28");
+      var blue = cleanValue("2");
+      var datos = red + green + blue;
+      dataSend.push(datos);
+      console.log(datos);
+    }
+    console.log(dataSend);
+
+    var j=0;
+    setTimeout(function(){
+      console.log("---->>" + j);
+      if(j<20){
+
+        var pixel = "00"
+        if(j<10){
+          pixel = "0" + j;
+        }else{
+          pixel = "" + j;
+        }
+        var data = pixel + dataSend[j];
+        console.log("---->" + data);
+        $.post("../postData", { cmd: data} );
+        j++;
+      }
+    },200);
+
+
 });
 </script>
-</head> 
-<body> 
+</head>
+<body>
 
 <div data-role="page">
 
@@ -108,12 +139,13 @@
 		<h1>My Title</h1>
 	</div><!-- /header -->
 
-	<div data-role="content">	
+	<div data-role="content">
     <div id="data"">
       &nbsp
     </div>
-    
-      <div data-role="fieldcontain">
+
+      <input type="text" value="0" id="no_pixel" name="no_pixel" />
+    <div data-role="fieldcontain">
                     <fieldset data-role="controlgroup">
                         <label for="slider1">
                             Red:
@@ -136,9 +168,9 @@
                         </label>
                         <input type="range" id="txt_blue"name="blue" id="slider3" value="0" min="0" max="31" data-highlight="false" />
                     </fieldset>
-    
-	
-  
+
+
+
 	</div><!-- /content -->
 
 </div><!-- /page -->
