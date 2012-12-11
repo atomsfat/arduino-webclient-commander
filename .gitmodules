@@ -1,0 +1,3 @@
+[submodule "libraries/LPD6803RGBPixels"]
+	path = libraries/LPD6803RGBPixels
+	url = git://github.com/adafruit/LPD6803-RGB-Pixels.git
